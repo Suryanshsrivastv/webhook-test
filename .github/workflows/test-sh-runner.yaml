@@ -24,4 +24,3 @@ jobs:
           -H "Content-Type: application/json" \
           -d '{"text":"Build Successful"}' \
           "${{ secrets.TEAMS_WEBHOOK }}"
-``
