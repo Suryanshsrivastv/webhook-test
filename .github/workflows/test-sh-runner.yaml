@@ -1,0 +1,14 @@
+name: new-sh-runner-test
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: new-sh-runner
+
+    steps:
+      - name: new-test
+        run: echo ${{ env.DATABASE_NAME }}
