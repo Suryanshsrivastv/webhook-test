@@ -1,23 +1,13 @@
-name: Production Deployment
+notify:
+  needs: build
+  runs-on: self-hosted
 
-on:
-  push:
-    branches:
-      - master
-
-jobs:
-  build:
-    runs-on: self-hosted
-
-    steps:
-      - name: Build
-        run: echo "Build Successful.."
-
-  deploy:
-    needs: build
-    runs-on: self-hosted
-    environment: production
-
-    steps:
-      - name: Deploy Application
-        run: echo "Deploying to Production"
+  steps:
+    - name: Notify Teams
+      run: |
+        curl -X POST \
+        -H "Content-Type: application/json" \
+        -d '{
+          "text":"✅ Build Successful\nRepository: '${{ github.repository }}'\nBranch: '${{ github.ref_name }}'"
+        }' \
+        "${{ secrets.TEAMS_WEBHOOK }}"
