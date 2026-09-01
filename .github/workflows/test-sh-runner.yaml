@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Build
-        run: echo "Build Successful"
+        run: echo "Build Successful.."
 
   deploy:
     needs: build
