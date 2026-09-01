@@ -1,4 +1,4 @@
-name: new-sh-runner-test
+name: Production Deployment
 
 on:
   push:
@@ -10,5 +10,14 @@ jobs:
     runs-on: new-sh-runner
 
     steps:
-      - name: new-test
-        run: echo ${{ env.DATABASE_NAME }}
+      - name: Build
+        run: echo "Build Successful"
+
+  deploy:
+    needs: build
+    runs-on: new-sh-runner
+    environment: production
+
+    steps:
+      - name: Deploy Application
+        run: echo "Deploying to Production"
