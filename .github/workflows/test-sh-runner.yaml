@@ -1,13 +1,27 @@
-notify:
-  needs: build
-  runs-on: self-hosted
+name: test-sh-runner
 
-  steps:
-    - name: Notify Teams
-      run: |
-        curl -X POST \
-        -H "Content-Type: application/json" \
-        -d '{
-          "text":"✅ Build Successful\nRepository: '${{ github.repository }}'\nBranch: '${{ github.ref_name }}'"
-        }' \
-        "${{ secrets.TEAMS_WEBHOOK }}"
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - name: Build
+        run: echo "Build Successful"
+
+  notify:
+    needs: build
+    runs-on: self-hosted
+
+    steps:
+      - name: Notify Teams
+        run: |
+          curl -X POST \
+          -H "Content-Type: application/json" \
+          -d '{"text":"Build Successful"}' \
+          "${{ secrets.TEAMS_WEBHOOK }}"
+``
