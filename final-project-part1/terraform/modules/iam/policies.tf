@@ -27,6 +27,20 @@ resource "aws_iam_role_policy_attachment" "jenkins_ecr_push" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
 }
 
+resource "aws_iam_role_policy" "jenkins_asg_describe" {
+  name = "jenkins-asg-describe"
+  role = aws_iam_role.jenkins_ec2.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = "autoscaling:DescribeAutoScalingGroups"
+      Resource = "*"
+    }]
+  })
+}
+
 resource "aws_iam_role_policy" "jenkins_ssm_send" {
   name = "jenkins-ssm-send-command"
   role = aws_iam_role.jenkins_ec2.id
@@ -68,8 +82,8 @@ resource "aws_iam_role_policy" "jenkins_s3" {
       Effect   = "Allow"
       Action   = ["s3:PutObject", "s3:DeleteObject", "s3:ListBucket"]
       Resource = [
-        "arn:aws:s3:::frontend-bucket-23-09-azey",
-        "arn:aws:s3:::frontend-bucket-23-09-azey/*"
+        "arn:aws:s3:::frontend-bucket-20260924045231568500000002",
+        "arn:aws:s3:::frontend-bucket-20260924045231568500000002/*"
       ]
     }]
   })
