@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('checkout') {
             steps {
-                git branch: 'main', credentialsId: 'github-creds', url: 'https://github.com/<you>/app-repo.git'
+                git branch: 'master', credentialsId: 'github-creds', url: 'https://github.com/Suryanshsrivastv/TaskManager_app'
             }
         }
 
