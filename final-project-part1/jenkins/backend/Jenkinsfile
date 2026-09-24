@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         AWS_REGION     = 'ap-south-1'
-        ECR_REPO_URL   = '<account-id>.dkr.ecr.ap-south-1.amazonaws.com/backend-app'
+        ECR_REPO_URL   = '675789572445.dkr.ecr.ap-south-1.amazonaws.com/backend-app'
         IMAGE_TAG      = "${env.BUILD_NUMBER}"
         ASG_NAME       = 'backend-asg'
     }
@@ -17,9 +17,7 @@ pipeline {
 
         stage('build and test') {
             steps {
-                dir('backend') {
-                    sh 'mvn clean package -DskipTests=false'
-                }
+                sh 'mvn clean package -DskipTests'
             }
         }
 

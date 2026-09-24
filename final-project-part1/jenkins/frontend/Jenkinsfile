@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         AWS_REGION   = 'ap-south-1'
-        S3_BUCKET    = 'finalproject-frontend-devops-2026'
+        S3_BUCKET    = 'my-frontend-bucket-20260924045231568500000002'
     }
 
     stages {
