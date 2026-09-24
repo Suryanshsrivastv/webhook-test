@@ -1,0 +1,70 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION     = 'ap-south-1'
+        ECR_REPO_URL   = '<account-id>.dkr.ecr.ap-south-1.amazonaws.com/backend-app'
+        IMAGE_TAG      = "${env.BUILD_NUMBER}"
+        ASG_NAME       = 'backend-asg'
+    }
+
+    stages {
+        stage('checkout') {
+            steps {
+                git branch: 'main', credentialsId: 'github-creds', url: 'https://github.com/<you>/app-repo.git'
+            }
+        }
+
+        stage('build and test') {
+            steps {
+                dir('backend') {
+                    sh 'mvn clean package -DskipTests=false'
+                }
+            }
+        }
+
+        stage('docker build') {
+            steps {
+                dir('backend') {
+                    sh "docker build -t ${ECR_REPO_URL}:${IMAGE_TAG} -t ${ECR_REPO_URL}:latest ."
+                }
+            }
+        }
+
+        stage('push to ecr') {
+            steps {
+                sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REPO_URL}"
+                sh "docker push ${ECR_REPO_URL}:${IMAGE_TAG}"
+                sh "docker push ${ECR_REPO_URL}:latest"
+            }
+        }
+
+        stage('deploy to asg') {
+            steps {
+                script {
+                    def instanceIds = sh(
+                        script: "aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names ${ASG_NAME} --query 'AutoScalingGroups[0].Instances[].InstanceId' --output text --region ${AWS_REGION}",
+                        returnStdout: true
+                    ).trim()
+
+                    sh """
+                        aws ssm send-command \
+                          --instance-ids ${instanceIds} \
+                          --document-name "AWS-RunShellScript" \
+                          --parameters commands='["docker pull ${ECR_REPO_URL}:latest","docker stop backend-app || true","docker rm backend-app || true","docker run -d --name backend-app --restart unless-stopped -p 8080:8080 --env-file /etc/backend-app.env ${ECR_REPO_URL}:latest"]' \
+                          --region ${AWS_REGION}
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'backend build and deploy succeeded'
+        }
+        failure {
+            echo 'backend pipeline failed'
+        }
+    }
+}

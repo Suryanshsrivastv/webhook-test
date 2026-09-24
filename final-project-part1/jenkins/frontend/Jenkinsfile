@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION   = 'ap-south-1'
+        S3_BUCKET    = 'finalproject-frontend-devops-2026'
+    }
+
+    stages {
+        stage('checkout') {
+            steps {
+                git branch: 'main', credentialsId: 'github-creds', url: 'https://github.com/<you>/app-repo.git'
+            }
+        }
+
+        stage('sync to s3') {
+            steps {
+                dir('frontend') {
+                    sh "aws s3 sync . s3://${S3_BUCKET} --delete --region ${AWS_REGION}"
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'frontend deployed to s3'
+        }
+        failure {
+            echo 'frontend pipeline failed'
+        }
+    }
+}
