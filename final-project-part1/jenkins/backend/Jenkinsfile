@@ -23,9 +23,7 @@ pipeline {
 
         stage('docker build') {
             steps {
-                dir('backend') {
                     sh "docker build -t ${ECR_REPO_URL}:${IMAGE_TAG} -t ${ECR_REPO_URL}:latest ."
-                }
             }
         }
 
