@@ -1,0 +1,64 @@
+name: terraform ci/cd
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ap-south-1
+      TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: terraform init
+        run: terraform init
+
+      - name: terraform validate
+        run: terraform validate
+
+      - name: terraform plan
+        run: terraform plan -out=tfplan
+
+      - name: upload plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: tfplan
+
+  apply:
+    needs: plan
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ap-south-1
+      TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: terraform init
+        run: terraform init
+
+      - name: download plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+
+      - name: terraform apply
+        run: terraform apply -auto-approve tfplan
