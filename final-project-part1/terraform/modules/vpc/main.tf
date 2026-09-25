@@ -18,9 +18,9 @@ resource "aws_internet_gateway" "main" {
 
 resource "aws_subnet" "public_app" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block               = var.public_subnet_app_cidr
-  availability_zone        = var.availability_zone
-  map_public_ip_on_launch  = true
+  cidr_block              = var.public_subnet_app_cidr
+  availability_zone       = var.availability_zone
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "public-subnet-app"
@@ -29,12 +29,23 @@ resource "aws_subnet" "public_app" {
 
 resource "aws_subnet" "public_cicd" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block               = var.public_subnet_cicd_cidr
-  availability_zone        = var.availability_zone
-  map_public_ip_on_launch  = true
+  cidr_block              = var.public_subnet_cicd_cidr
+  availability_zone       = var.availability_zone
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "public-subnet-cicd"
+  }
+}
+
+resource "aws_subnet" "public_alb" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.public_subnet_alb_cidr
+  availability_zone       = var.availability_zone_2
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "public-subnet-alb"
   }
 }
 
@@ -78,5 +89,10 @@ resource "aws_route_table_association" "public_app" {
 
 resource "aws_route_table_association" "public_cicd" {
   subnet_id      = aws_subnet.public_cicd.id
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table_association" "public_alb" {
+  subnet_id      = aws_subnet.public_alb.id
   route_table_id = aws_route_table.public.id
 }

@@ -24,32 +24,41 @@ module "iam" {
 }
 
 module "rds" {
-  source              = "./modules/rds"
-  private_subnet_ids  = module.vpc.private_subnet_db_ids
-  rds_sg_id           = module.security_gp.rds_sg_id
-  db_username         = module.secrets-manager.db_username
-  db_password         = module.secrets-manager.db_password
+  source             = "./modules/rds"
+  private_subnet_ids = module.vpc.private_subnet_db_ids
+  rds_sg_id          = module.security_gp.rds_sg_id
+  db_username        = module.secrets-manager.db_username
+  db_password        = module.secrets-manager.db_password
 }
 
 module "asg-backend" {
-  source                 = "./modules/asg-backend"
-  ami_id                 = var.ami_id
-  subnet_id              = module.vpc.public_subnet_app_id
-  backend_sg_id          = module.security_gp.backend_sg_id
-  instance_profile_name  = module.iam.backend_instance_profile_name
-  ecr_repo_url           = module.ecr.repository_url
-  aws_region             = "ap-south-1"
-  db_secret_arn          = module.secrets-manager.secret_arn
-  db_host                = split(":", module.rds.db_endpoint)[0]
-  db_name                = var.db_name
+  source                = "./modules/asg-backend"
+  ami_id                = var.ami_id
+  subnet_id             = module.vpc.public_subnet_app_id
+  backend_sg_id         = module.security_gp.backend_sg_id
+  instance_profile_name = module.iam.backend_instance_profile_name
+  ecr_repo_url          = module.ecr.repository_url
+  aws_region            = "ap-south-1"
+  db_secret_arn         = module.secrets-manager.secret_arn
+  db_host               = split(":", module.rds.db_endpoint)[0]
+  db_name               = var.db_name
+}
+
+module "alb" {
+  source            = "./modules/alb"
+  vpc_id            = module.vpc.vpc_id
+  subnet_ids        = module.vpc.public_subnet_ids
+  alb_sg_id         = module.security_gp.alb_sg_id
+  asg_name          = module.asg-backend.asg_name
+  health_check_path = "/"
 }
 
 module "jenkins-ec2" {
-  source                 = "./modules/jenkins-ec2"
-  ami_id                 = var.ami_id
-  subnet_id              = module.vpc.public_subnet_cicd_id
-  jenkins_sg_id           = module.security_gp.jenkins_sg_id
-  instance_profile_name  = module.iam.jenkins_instance_profile_name
+  source                = "./modules/jenkins-ec2"
+  ami_id                = var.ami_id
+  subnet_id             = module.vpc.public_subnet_cicd_id
+  jenkins_sg_id         = module.security_gp.jenkins_sg_id
+  instance_profile_name = module.iam.jenkins_instance_profile_name
 }
 
 module "s3-frontned" {

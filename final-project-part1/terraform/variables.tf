@@ -1,5 +1,5 @@
 variable "my_ip" {
-  type        = string
+  type = string
 }
 
 variable "db_password" {
@@ -12,5 +12,5 @@ variable "db_name" {
 }
 
 variable "ami_id" {
-  type        = string
+  type = string
 }

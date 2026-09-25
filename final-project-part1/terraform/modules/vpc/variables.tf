@@ -10,6 +10,10 @@ variable "public_subnet_cicd_cidr" {
   default = "10.0.0.32/27"
 }
 
+variable "public_subnet_alb_cidr" {
+  default = "10.0.0.128/27"
+}
+
 variable "private_subnet_db_cidr" {
   default = "10.0.0.64/27"
 }

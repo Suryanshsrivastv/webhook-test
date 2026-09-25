@@ -10,6 +10,10 @@ output "public_subnet_cicd_id" {
   value = aws_subnet.public_cicd.id
 }
 
+output "public_subnet_ids" {
+  value = [aws_subnet.public_app.id, aws_subnet.public_alb.id]
+}
+
 output "private_subnet_db_ids" {
   value = [aws_subnet.private_db.id, aws_subnet.private_db2.id]
 }

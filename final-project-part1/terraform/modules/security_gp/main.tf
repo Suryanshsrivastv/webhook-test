@@ -32,6 +32,31 @@ resource "aws_security_group" "backend" {
   }
 }
 
+resource "aws_security_group" "alb" {
+  name        = "backend-alb-sg"
+  description = "allow public HTTP traffic to the backend ALB"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "backend-alb-sg"
+  }
+}
+
 resource "aws_security_group" "jenkins" {
   name        = "jenkins-sg"
   description = "allow jenkins ui and ssh"
